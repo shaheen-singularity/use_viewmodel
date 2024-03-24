@@ -16,13 +16,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Room
+import com.example.use_viewmodel.MainActivity.Companion.database
 import com.example.use_viewmodel.ui.theme.Use_viewmodelTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var database: AppDatabase
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Use_viewmodelTheme {
+
+
+            database = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java,
+                "my_database"
+            ).build()
+
+        Use_viewmodelTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -55,7 +71,10 @@ fun LandingScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()){
             Spacer(modifier = Modifier.size(20.dp))
             ElevatedButton(onClick = {
                 println("Clicked")
-                println(homeScreenViewModel.uiState.value.name)
+                GlobalScope.launch {
+                    database.homeDao().insertName(HomeScreenDataClass(name = "AisJac"))
+                }
+
             }) {
                 Text(text = "Submit")
             }
